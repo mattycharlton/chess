@@ -39,7 +39,12 @@ const App: React.FC = () => {
 
   return (
     <Container>
-      <Chessboard position={game.fen()} onPieceDrop={onDrop} />
+      <Chessboard
+        position={game.fen()}
+        onPieceDrop={onDrop}
+        customLightSquareStyle={{ backgroundColor: '#dee4e7' }}
+        customDarkSquareStyle={{ backgroundColor: '#4f849e' }}
+      />
     </Container>
   )
 }
