@@ -20,7 +20,11 @@ const App: React.FC = () => {
 
   const makeRandomMove = () => {
     const possibleMoves = game.moves()
-    if (game.game_over() || game.in_draw() || possibleMoves.length === 0) return // exit if the game is over
+    if (game.game_over() || game.in_draw() || possibleMoves.length === 0) {
+      localStorage.removeItem('activeChessGame')
+      return
+    }
+
     const randomIndex = Math.floor(Math.random() * possibleMoves.length)
     safeGameMutate((game: ChessInstance) => {
       game.move(possibleMoves[randomIndex])
