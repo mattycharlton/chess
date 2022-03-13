@@ -4,12 +4,16 @@ import { Chess, ChessInstance, Square } from 'chess.js'
 import { Chessboard } from 'react-chessboard'
 
 const App: React.FC = () => {
-  const [game, setGame] = useState(new Chess())
+  const localStorage = window.localStorage
+  const [game, setGame] = useState<ChessInstance>(
+    new Chess(localStorage.getItem('activeChessGame') || undefined),
+  )
 
   const safeGameMutate = (modify: Function) => {
     setGame((g) => {
       const update = { ...g }
       modify(update)
+      localStorage.setItem('activeChessGame', game.fen())
       return update
     })
   }
@@ -42,6 +46,11 @@ const App: React.FC = () => {
       <Chessboard
         position={game.fen()}
         onPieceDrop={onDrop}
+        boardWidth={1000}
+        customBoardStyle={{
+          borderRadius: '4px',
+          boxShadow: 'rgb(0 0 0 / 50%) 0px 5px 15px',
+        }}
         customLightSquareStyle={{ backgroundColor: '#dee4e7' }}
         customDarkSquareStyle={{ backgroundColor: '#4f849e' }}
       />
