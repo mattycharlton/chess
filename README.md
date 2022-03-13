@@ -1,4 +1,4 @@
-# Chess
+# Chess (WIP)
 
 Chess built using Chess.js, React Chessboard, TypeScript & Styled Components. Using Vite as the front-end build tool.
 
