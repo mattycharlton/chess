@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Container } from './App.styled'
 import { Chess, ChessInstance, Square } from 'chess.js'
 import { Chessboard } from 'react-chessboard'
+import getAIMove from './helpers/getAIMove'
 
 const App: React.FC = () => {
   const localStorage = window.localStorage
@@ -18,30 +19,28 @@ const App: React.FC = () => {
     })
   }
 
-  const makeRandomMove = () => {
-    const possibleMoves = game.moves()
-    if (game.game_over() || game.in_draw() || possibleMoves.length === 0) {
-      localStorage.removeItem('activeChessGame')
-      return
+  const makeAIMove = () => {
+    if (game.game_over()) {
+      console.log('GameOver')
+      return null
     }
-
-    const randomIndex = Math.floor(Math.random() * possibleMoves.length)
     safeGameMutate((game: ChessInstance) => {
-      game.move(possibleMoves[randomIndex])
+      const bestMove = getAIMove(game, 1, true) // 1 is Depth
+      game.move(bestMove)
     })
   }
 
-  const onDrop = (sourceSquare: Square, targetSquare: Square) => {
+  const onPieceDrop = (sourceSquare: Square, targetSquare: Square) => {
     let move = null
     safeGameMutate((game: ChessInstance) => {
       move = game.move({
         from: sourceSquare,
         to: targetSquare,
-        promotion: 'q', // always promote to a queen for example simplicity
+        promotion: 'q',
       })
     })
-    if (move === null) return false // illegal move
-    setTimeout(makeRandomMove, 200)
+    if (move === null) return false
+    setTimeout(makeAIMove, 200)
     return true
   }
 
@@ -49,7 +48,7 @@ const App: React.FC = () => {
     <Container>
       <Chessboard
         position={game.fen()}
-        onPieceDrop={onDrop}
+        onPieceDrop={onPieceDrop}
         boardWidth={1000}
         customBoardStyle={{
           borderRadius: '4px',
