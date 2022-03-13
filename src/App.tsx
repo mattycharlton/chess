@@ -25,7 +25,7 @@ const App: React.FC = () => {
       return null
     }
     safeGameMutate((game: ChessInstance) => {
-      const bestMove = getAIMove(game, 1, true) // 1 is Depth
+      const bestMove = getAIMove(game, 3, true) // 1 is Depth
       game.move(bestMove)
     })
   }
