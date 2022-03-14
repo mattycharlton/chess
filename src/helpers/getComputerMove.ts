@@ -1,10 +1,11 @@
 import { ChessInstance } from 'chess.js'
 import getPieceValue, { Piece } from './getPieceValue'
 
-export const getAIMove = (
+export const getComputerMove = (
   game: ChessInstance,
   depth: number,
   isMaximisingPlayer: boolean,
+  isWhite: boolean,
 ) => {
   const possibleGameMoves = game.moves()
   let bestMove = -9999
@@ -12,14 +13,21 @@ export const getAIMove = (
 
   possibleGameMoves.forEach((newMove) => {
     game.move(newMove)
-    const value = miniMax(depth - 1, game, -10000, 10000, !isMaximisingPlayer)
+    const value = miniMax(
+      depth - 1,
+      game,
+      -10000,
+      10000,
+      !isMaximisingPlayer,
+      isWhite,
+    )
+    console.log(value)
     game.undo()
     if (value >= bestMove) {
       bestMove = value
       bestMoveFound = newMove
     }
   })
-
   if (!bestMoveFound) throw 'Error no move found'
   return bestMoveFound
 }
@@ -30,10 +38,16 @@ const miniMax = (
   alpha: number,
   beta: number,
   isMaximisingPlayer: boolean,
+  isWhite: boolean,
 ) => {
-  if (depth === 0) return -evaluateBoard(game.board())
+  if (depth === 0)
+    return isWhite ? -evaluateBoard(game.board()) : evaluateBoard(game.board())
 
   const possibleGameMoves = game.moves()
+
+  possibleGameMoves.sort(() => {
+    return 0.5 - Math.random()
+  })
 
   // To show possible moves for player
   if (isMaximisingPlayer) {
@@ -43,7 +57,7 @@ const miniMax = (
       game.move(newMove)
       bestMove = Math.max(
         bestMove,
-        miniMax(depth - 1, game, alpha, beta, !isMaximisingPlayer),
+        miniMax(depth - 1, game, alpha, beta, !isMaximisingPlayer, isWhite),
       )
       game.undo()
       alpha = Math.max(alpha, bestMove)
@@ -58,7 +72,7 @@ const miniMax = (
       game.move(newMove)
       bestMove = Math.min(
         bestMove,
-        miniMax(depth - 1, game, alpha, beta, !isMaximisingPlayer),
+        miniMax(depth - 1, game, alpha, beta, !isMaximisingPlayer, isWhite),
       )
       game.undo()
       beta = Math.min(beta, bestMove)
@@ -81,4 +95,4 @@ const evaluateBoard = (board: Array<Array<Piece>>) => {
   return total
 }
 
-export default getAIMove
+export default getComputerMove

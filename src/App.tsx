@@ -2,30 +2,34 @@ import { useState } from 'react'
 import { Container } from './App.styled'
 import { Chess, ChessInstance, Square } from 'chess.js'
 import { Chessboard } from 'react-chessboard'
-import getAIMove from './helpers/getAIMove'
+import getComputerMove from './helpers/getComputerMove'
+import ColorSelectionModel from './components/ColorSelectionModal'
+
+const WHITE = 'white'
+const BLACK = 'black'
 
 const App: React.FC = () => {
-  const localStorage = window.localStorage
-  const [game, setGame] = useState<ChessInstance>(
-    new Chess(localStorage.getItem('activeChessGame') || undefined),
-  )
+  const [game, setGame] = useState<ChessInstance>(new Chess())
+  const [selectedColor, setSelectedColor] = useState<
+    typeof WHITE | typeof BLACK | undefined
+  >()
 
   const safeGameMutate = (modify: Function) => {
     setGame((g) => {
       const update = { ...g }
       modify(update)
-      localStorage.setItem('activeChessGame', game.fen())
       return update
     })
   }
 
-  const makeAIMove = () => {
-    if (game.game_over()) {
-      console.log('GameOver')
+  const makeComputerMove = () => {
+    if (game.game_over() || game.in_draw() || game.in_checkmate()) {
+      alert('Game Over')
+      console.log('Game Over')
       return null
     }
     safeGameMutate((game: ChessInstance) => {
-      const bestMove = getAIMove(game, 3, true) // 1 is Depth
+      const bestMove = getComputerMove(game, 3, true, selectedColor === WHITE)
       game.move(bestMove)
     })
   }
@@ -40,16 +44,29 @@ const App: React.FC = () => {
       })
     })
     if (move === null) return false
-    setTimeout(makeAIMove, 200)
+    setTimeout(makeComputerMove, 200)
     return true
   }
 
   return (
     <Container>
+      <ColorSelectionModel
+        selectedColor={selectedColor}
+        onBlack={() => {
+          setSelectedColor(BLACK)
+          setTimeout(makeComputerMove, 200)
+        }}
+        onWhite={() => setSelectedColor(WHITE)}
+      />
       <Chessboard
+        boardOrientation={selectedColor}
         position={game.fen()}
         onPieceDrop={onPieceDrop}
-        boardWidth={1000}
+        boardWidth={
+          window.innerWidth < window.innerHeight
+            ? window.innerWidth - 25
+            : window.innerHeight - 25
+        }
         customBoardStyle={{
           borderRadius: '4px',
           boxShadow: 'rgb(0 0 0 / 50%) 0px 5px 15px',

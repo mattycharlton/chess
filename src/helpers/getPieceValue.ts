@@ -23,7 +23,7 @@ export const getPieceValue = (piece: Piece, x: number, y: number) => {
 
   const isWhite = piece.color === 'w'
   const absoluteValue = getAbsoluteValue(piece, isWhite, x, y)
-  if (absoluteValue) return piece.color === 'w' ? absoluteValue : -absoluteValue
+  if (absoluteValue) return isWhite ? absoluteValue : -absoluteValue
 
   throw 'Error'
 }
@@ -35,7 +35,6 @@ const getAbsoluteValue = (
   y: number,
 ) => {
   if (!piece) throw 'Unknown piece type: ' + piece
-
   switch (piece.type) {
     case 'p':
       return 10 + (isWhite ? pawnWhite[y][x] : pawnBlack[y][x])
